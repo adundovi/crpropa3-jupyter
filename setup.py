@@ -14,8 +14,8 @@ setup(name="crpropa3jupyter",
             "jupyter",
             "matplotlib",
             "numpy",
-            "ipyvolume"
+            "ipyvolume",
             "pint",
-            "healpy"
+            "healpy",
         ],
      )

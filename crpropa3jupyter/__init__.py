@@ -66,6 +66,9 @@ def get_points(container):
         points.append([pos.getX(), pos.getY(), pos.getZ()])
     return np.array(points)
 
+def getDistanceFromSource(c):
+    return (c.source.getPosition() - c.current.getPosition()).getR()
+
 def plot_trajectory(trajectory, perspective='XY', length=1):
     points = get_points(trajectory)
     x, y, z = points[:,0], points[:,1], points[:,2]
@@ -147,4 +150,92 @@ def plot_field_lines(B, start, end, perspective = 'XY', unit = Mpc, density = 0.
     plt.streamplot(X, Y, U, V, density=density,
                    arrowstyle='->', arrowsize=1.5)
 
+def getUniformSphereVectors(N=1000):
+    # put points on a spiral around the sphere
+    node = {}
 
+    s  = 3.6/np.sqrt(N)
+    dz = 2.0/N
+    long = 0
+    z    = 1 - dz/2
+    for k in np.arange(0,N):
+        r = np.sqrt(1-z*z)
+        node[k] = (np.cos(long)*r, np.sin(long)*r, z)
+        z = z - dz
+        long = long + s/r
+
+    vectors = []
+    for n in node.values():
+        x, y, z = n
+        v = Vector3d(x, y, z)
+        vectors.append(v)
+        
+    return vectors
+
+def container2crmap(output, limit=0):
+    
+    tmp_lat = []; tmp_lon = []
+    
+    container = ParticleMapsContainer()
+    sourceEnergyWeightExponent = 1
+    
+    weight = 1./output.size()
+    
+    i = 0
+    
+    for c in output:
+        if not np.isfinite(c.current.getPosition().getX()):
+            continue
+        v = c.current.getDirection()
+        
+        lon = v.getPhi()
+        lat = np.pi/2 - v.getTheta()
+        tmp_lon.append(lat)
+        tmp_lat.append(lon)
+        
+        if limit != 0 and i > limit:
+            break
+        i += 1
+    
+        container.addParticle(c.current.getId(), c.current.getEnergy()+np.random.uniform(1,1000), lon, lat, weight) # hack
+        
+    crMap = np.zeros(49152)
+    for pid in container.getParticleIds():
+        energies = container.getEnergies(int(pid))
+        for i, energy in enumerate(energies):
+            crMap += container.getMap(int(pid), energy * crpropa.eV)
+    
+    return crMap
+
+def container2skymap(output, trajectoryBottomCut=0*Mpc, trajectoryTopCut=100*Mpc):
+    tmp_lat = []; tmp_lon = []; traj0 = []
+    for c in output:
+        if c.getTrajectoryLength() < trajectoryBottomCut or c.getTrajectoryLength() > trajectoryTopCut:
+            continue
+        v = c.current.getDirection()
+        traj0.append(c.getTrajectoryLength())
+        tmp_lat.append(np.pi/2 - v.getTheta())
+        tmp_lon.append(v.getPhi())
+
+
+    rel_traj = np.array(traj0)/(max(traj0)-np.min(traj0))
+    print("Lat. borders: ", np.min(tmp_lat)/np.pi, max(tmp_lat)/np.pi)
+    print("Lon. borders: ", np.min(tmp_lon)/np.pi, max(tmp_lon)/np.pi)
+
+    plt.figure(figsize=(12,7))
+    plt.subplot(111, projection = 'hammer')
+    plt.scatter(tmp_lon, tmp_lat, s=30, marker='o', c=rel_traj, linewidths=0, alpha=1)
+    plt.grid(True)
+    plt.colorbar()
+
+def linreg(xs, ys, debug=False):
+    A = np.vstack([xs, np.ones(len(xs))]).T
+    res = np.linalg.lstsq(A, ys)
+    
+    a, b = res[0]
+    residuals = res[1]
+
+    if debug:
+        print("slope = {}, y-cut = {}".format(a,b))
+
+    return a, b, residuals

@@ -1,3 +1,9 @@
+import matplotlib
+matplotlib.use('agg')
+import matplotlib.pyplot as plt
+import numpy as np
+import itertools
+import healpy
 from crpropa import *
 
 def container2crmap(output, limit=0):
@@ -50,3 +56,8 @@ def container2skymap(output, trajectoryBottomCut=0*Mpc, trajectoryTopCut=100*Mpc
     print("Lat. borders: ", np.min(tmp_lat)/np.pi, max(tmp_lat)/np.pi)
     print("Lon. borders: ", np.min(tmp_lon)/np.pi, max(tmp_lon)/np.pi)
 
+    plt.figure(figsize=(12,7))
+    plt.subplot(111, projection = 'hammer')
+    plt.scatter(tmp_lon, tmp_lat, s=30, marker='o', c=rel_traj, linewidths=0, alpha=1)
+    plt.grid(True)
+    plt.colorbar()

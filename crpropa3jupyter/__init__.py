@@ -189,3 +189,8 @@ def linreg(xs, ys, debug=False):
 
     return a, b, residuals
 
+def approx(first, second):
+    if np.fabs(first - second) <= 0.01*second:
+        return True
+    return False
+

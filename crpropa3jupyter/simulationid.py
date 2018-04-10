@@ -1,5 +1,16 @@
+import matplotlib
+matplotlib.use('agg')
+import matplotlib.pyplot as plt
+import numpy as np
+import itertools
+import healpy
 import datetime
 import hashlib
+import glob
+
+from crpropa import *
+
+
 
 def generateID(kwargs, filename=True, path=""):
     record = ""
@@ -51,3 +62,19 @@ def readMeta(filename, path = ""):
 def readID(kwargs, path=""):
     id = generateID(kwargs, filename=False, path="")
     return readMeta(id+'.meta')
+
+def loadData(metaOrId, meta_path=''):
+    if isinstance(metaOrId, (dict,)):
+        return loadDataByMeta(metaOrId, meta_path)
+    else:
+        return loadDataByID(metaOrId, meta_path)
+
+def loadDataByMeta(meta, meta_path = ''):
+    output = ParticleCollector()
+    output.load(meta_path + meta['id']+'txt.gz')
+    return output
+
+def loadDataByID(ID, meta_path=''):
+    output = ParticleCollector()
+    output.load(meta_path + ID+'.txt.gz')
+    return output

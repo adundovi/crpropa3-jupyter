@@ -64,13 +64,12 @@ def readMeta(filename, path = ""):
 
     return data
 
-def loadMetaFiles(directory, reloadid=False):
+def loadMetaFiles(directory):
     list_meta = []
     for filename in glob.glob(directory):
         meta = readMeta(filename)
         name = filename.split('/')[-1]
-        if reloadif:
-            meta["id"] = name.split(".")[0]
+        meta["id"] = name.split(".")[0]
         list_meta.append(meta)
     return list_meta
 

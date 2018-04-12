@@ -85,7 +85,7 @@ def loadData(metaOrId, meta_path=''):
 
 def loadDataByMeta(meta, meta_path = ''):
     output = ParticleCollector()
-    output.load(meta_path + meta['id']+'txt.gz')
+    output.load(meta_path + meta['id']+'.txt.gz')
     return output
 
 def loadDataByID(ID, meta_path=''):

@@ -15,6 +15,8 @@ from crpropa import *
 def generateID(kwargs, filename=True, path=""):
     record = ""
     for k, v in kwargs.items():
+        if k in ["UTCtime", "id"]:
+            continue
         record += "{}={}\n".format(str(k),v)
     id = hashlib.md5(record.encode('utf-8')).hexdigest()
 
@@ -46,18 +48,31 @@ def readMeta(filename, path = ""):
              "alpha": float,
              "dist": float,
              "note": str,
+             "id": str,
              "UTCtime": readDate,
             }
     with open(path + filename, 'r') as f:
         lines = f.readlines()
         for l in lines:
             key, value = l.split("=")
+            if "UTCtime" in key:
+                continue
             if key in types.keys():
                 data[key] = types[key](value)
             else:
                 data[key] = value
 
     return data
+
+def loadMetaFiles(directory, reloadid=False):
+    list_meta = []
+    for filename in glob.glob(directory):
+        meta = readMeta(filename)
+        name = filename.split('/')[-1]
+        if reloadif:
+            meta["id"] = name.split(".")[0]
+        list_meta.append(meta)
+    return list_meta
 
 def readID(kwargs, path=""):
     id = generateID(kwargs, filename=False, path="")

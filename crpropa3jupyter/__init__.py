@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import itertools
 import healpy
+import scipy
 import pint
 import csv
 

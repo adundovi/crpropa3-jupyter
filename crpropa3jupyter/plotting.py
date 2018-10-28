@@ -41,7 +41,7 @@ def container2crmap(output, limit=0):
     
     return crMap
 
-def container2skymap(output, trajectoryBottomCut=0*Mpc, trajectoryTopCut=100*Mpc):
+def container2skymap(output, trajectoryBottomCut=0*Mpc, trajectoryTopCut=10*Gpc):
     tmp_lat = []; tmp_lon = []; traj0 = []
     for c in output:
         if c.getTrajectoryLength() < trajectoryBottomCut or c.getTrajectoryLength() > trajectoryTopCut:

@@ -56,7 +56,7 @@ def readMeta(filename, path = ""):
         for l in lines:
             key, value = l.split("=")
             if "UTCtime" in key:
-                continue
+                data[key] = types[key](value)
             if key in types.keys():
                 data[key] = types[key](value)
             else:

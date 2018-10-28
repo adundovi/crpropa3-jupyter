@@ -96,11 +96,11 @@ def plot_trajectory(trajectory, perspective='XY', length=1):
         scale = 'kpc'
 
     if perspective in ['XY', 'YX']:
-        plt.plot(x,y)
+        plt.plot(x,y, 'k')
     if perspective in ['XZ', 'ZX']:
-        plt.plot(x,z)
+        plt.plot(x,z, 'k')
     if perspective in ['YZ', 'ZY']:
-        plt.plot(y,z)
+        plt.plot(y,z, 'k')
     
     #plt.xlabel(r"$y / {{\rm {0} }}$".format(scale))
     #plt.ylabel(r"$z / {{\rm {0} }}$".format(scale))

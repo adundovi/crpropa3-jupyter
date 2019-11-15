@@ -1,3 +1,6 @@
+import numpy as np
+import scipy.special
+
 corr_lenght_finite = (
     lambda n, Lbo, Lmax, Lmin: (2 * np.pi) ** n
     * (n - 1)

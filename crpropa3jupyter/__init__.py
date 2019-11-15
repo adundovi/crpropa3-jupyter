@@ -2,6 +2,7 @@ from __future__ import print_function
 
 from IPython.display import HTML
 
+import numpy as np
 import ipyvolume as ipv
 import matplotlib
 import matplotlib.pyplot as plt

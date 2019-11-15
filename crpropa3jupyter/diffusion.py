@@ -1,3 +1,7 @@
+import os
+import glob
+from crpropa import ParticleCollector
+
 def addTwoAccumulators(acs1, acs2):
     """ Combine outputs of two accumulators """
     total = []

@@ -16,6 +16,7 @@ from .mathtools import *
 from .frequent_cr_equations import *
 from .plotting import *
 from .simtools import *
+from .turbulence import *
 from .diffusion import *
 
 #matplotlib.use('agg')

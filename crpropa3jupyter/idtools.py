@@ -16,6 +16,9 @@ def generateID(kwargs, filename=True, path="", compatibility = False) -> str:
         record += "\n" # compatibility with old generateID
 
     id = hashlib.md5(record.encode("utf-8")).hexdigest()
+    
+    if not compatibility:
+        record += "\n" # compatibility with old generateID
 
     datestamp = datetime.datetime.utcnow()
     extended_record = record + "UTCtime={}||datetime".format(

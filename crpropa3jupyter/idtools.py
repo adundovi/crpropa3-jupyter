@@ -101,9 +101,11 @@ def getDatetimeOfID(kwargs, path=""):
     id = generateID(kwargs, filename=False, path="")
     return readMeta(id+'.meta')["datetime"]
 
-def filterRunIDs(filter_function, dir_path):
+def filterRunIDs(filter_function, dir_path, verbose=False):
     filtered_runs = []
     for meta in loadMetaFiles(dir_path):
+        if verbose:
+            print("ID: ", meta['id'])
         if filter_function(meta):
             filtered_runs.append(meta['id'])
     return filtered_runs

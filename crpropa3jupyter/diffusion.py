@@ -2,7 +2,7 @@ import os
 import glob
 from crpropa import ParticleCollector
 
-def addTwoAccumulators(acs1, acs2):
+def addTwoAccumulators(acs1 : "accumulator", acs2 : "accumulator"):
     """ Combine outputs of two accumulators """
     total = []
     for a1, a2 in zip(acs1, acs2):
@@ -17,20 +17,20 @@ def addTwoAccumulators(acs1, acs2):
         total.append(accumulator)
     return total
 
-def sumAccumulators(list_of_acc):
+def sumAccumulators(list_of_acc : "list_of_accumulators"):
     """ Join outputs of a list accumulators """
     if len(list_of_acc) > 1:
         return addTwoAccumulators(sumAccumulators(list_of_acc[1:]), list_of_acc[0])
     return list_of_acc[0]
 
-def saveAccumulators(accumulators, dirname):
+def saveAccumulators(accumulators : "accumulators", dirname : "path"):
     if not os.path.exists(dirname):
         os.makedirs(dirname, 0o700)
 
     for a in accumulators:
         a["output"].dump("{}/{}.txt.gz".format(dirname, a["dist"]))
 
-def loadAccumulators(dirname):
+def loadAccumulators(dirname : "path"):
     accumulators = []
 
     files = glob.glob(dirname+"/*.txt.gz")

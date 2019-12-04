@@ -79,12 +79,20 @@ def isMetaFilePresent(kwargs, path=""):
 
 def saveXYPointsToFile(filename, xs, ys):
     """ Quickly save (x,y) data """
+    saveDataToTabularFile(filename, "# x    y", xs, ys)
+
+def saveDataToTabularFile(filename, header, *args):
+    """ Quickly save (x,y) data """
+    
+    sorted_columns = [
+        list(x) for x in zip(*sorted(zip(*args), key=lambda pair: pair[0]))
+    ]
+
     with open(filename, "w") as f:
-        xs_sorted, ys_sorted = [
-            list(x) for x in zip(*sorted(zip(xs, ys), key=lambda pair: pair[0]))
-        ]
-        for x, y in zip(xs_sorted, ys_sorted):
-            f.write("{:g}\t{:g}\n".format(x, y))
+        f.write("#" + "\t".join(header) + "\n")
+        formatting_string = "{:g}\t" * len(sorted_columns) + "\n"
+        for row in zip(*sorted_columns):
+            f.write(formatting_string.format(*row))
 
 def loadMetaFiles(dir_path):
     """ List meta files and their content from a directory """
@@ -101,6 +109,10 @@ def getDatetimeOfID(kwargs, path=""):
     id = generateID(kwargs, filename=False, path="")
     return readMeta(id+'.meta')["datetime"]
 
+def getKeyFromID(key, run_id, datapath):
+    meta = readMeta(run_id, datapath)
+    return meta[key]
+
 def filterRunIDs(filter_function, dir_path, verbose=False):
     filtered_runs = []
     for meta in loadMetaFiles(dir_path):
@@ -110,3 +122,16 @@ def filterRunIDs(filter_function, dir_path, verbose=False):
             filtered_runs.append(meta['id'])
     return filtered_runs
 
+def compareMetaData(runs, datapath):
+    saved_meta = {}
+    for r in runs:
+        meta = readMeta(r, datapath)
+        for key, value in meta.items():
+            if key == 'UTCtime': # skip datetime
+                continue
+            if key not in saved_meta.keys():
+                saved_meta[key] = [value]
+                continue
+            if value not in saved_meta[key]:
+                saved_meta[key].append(value)
+    return saved_meta

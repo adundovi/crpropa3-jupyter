@@ -17,5 +17,6 @@ setup(name="crpropa3jupyter",
             "ipyvolume",
             "pint",
             "healpy",
+            "mpmath"
         ],
      )

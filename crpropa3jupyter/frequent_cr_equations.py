@@ -9,4 +9,4 @@ def get_Lorenz_factor(E: "energy", m: "mass" = mass_proton) -> float:
     else: return (E / (m * c_squared))
 def get_gyrofrequency(B: "magnetic field",  gamma: "Lorentz factor" = 1,
         Z: "charge" = 1, m: "mass" = mass_proton) -> float: return B * Z * eplus / (m * gamma)
-
+def get_mean_free_path(D: "diffusion coefficient", v: "speed" = c_light) -> float: return  3 * D / v

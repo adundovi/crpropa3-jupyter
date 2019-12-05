@@ -1,5 +1,7 @@
 import os
 import glob
+import numpy as np
+import scipy.special
 from crpropa import ParticleCollector
 
 def addTwoAccumulators(acs1 : "accumulator", acs2 : "accumulator"):
@@ -44,3 +46,50 @@ def loadAccumulators(dirname : "path"):
         accumulators.append(accumulator)
 
     return sorted(accumulators, key=lambda k: k['dist'])
+
+# QLT slab theory
+
+def C_slab_exact(nu: "spectral_index") -> float:
+    return (
+        1
+        / (2 * np.sqrt(np.pi))
+        * scipy.special.gamma(nu / 2)
+        / scipy.special.gamma((nu - 1) / 2.0)
+    )
+
+def diff_coeff_slab_QLT(nu: "spectral_index",
+        l_slab: "correlation_length",
+        B0: "mean_mfield",
+        Brms: "rms_mfield",
+        ratio: "R_g/L_c") -> float:
+    return (
+        c_light
+        * l_slab
+        / (8 * np.pi * C_slab_exact(nu))
+        * (B0 / Brms) ** 2
+        * ratio ** (2 - nu)
+        * (
+            1
+            / (1 - nu / 2)
+            * scipy.special.hyp2f1(1 - nu / 2, -nu / 2, 2 - nu / 2, -ratio ** 2)
+            - 1
+            / (2 - nu / 2)
+            * scipy.special.hyp2f1(2 - nu / 2, -nu / 2, 3 - nu / 2, -ratio ** 2)
+        )
+    )
+
+
+def diff_coeff_slab_QLT_approx(nu: "spectral_index",
+        l_slab: "correlation_length",
+        B0: "mean_mfield",
+        Brms: "rms_mfield",
+        ratio: "R_g/L_c") -> float:
+    return (
+        c_light
+        * l_slab
+        / (8 * np.pi * C_slab_exact(nu))
+        * (B0 / Brms) ** 2
+        * ratio ** (2 - nu)
+        * (1 / (1 - nu / 2) - 1 / (2 - nu / 2))
+    )
+

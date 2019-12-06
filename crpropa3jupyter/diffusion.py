@@ -49,45 +49,6 @@ def loadAccumulators(dirname : "path"):
 
 # QLT slab theory
 
-def C_slab(nu: "spectral_index") -> float:
-    return (
-        1
-        / (2 * np.sqrt(np.pi))
-        * scipy.special.gamma(nu / 2)
-        / scipy.special.gamma((nu - 1) / 2.0)
-    )
-
-def C_slab_finite(
-    nu: "spectral_index", l_bo: "bendover_scale", kmin: "k_min", kmax: "k_max"
-) -> float:
-    return 1.0 / (
-        4
-        * l_bo
-        * (
-            kmax * scipy.special.hyp2f1(1 / 2.0, nu / 2, 3 / 2.0, -(kmax * l_bo) ** 2)
-            - kmin * scipy.special.hyp2f1(1 / 2.0, nu / 2, 3 / 2.0, -(kmin * l_bo) ** 2)
-        )
-    )
-
-def S_slab(Brms, l_bo, k, nu):
-    return (
-        C_slab(nu)
-        / (2 * np.pi)
-        * Brms ** 2
-        * l_bo
-        / (1 + (k * l_bo) ** 2) ** (nu / 2.0)
-    )
-
-
-def S_slab_finite(Brms, l_bo, k, nu, kmin, kmax):
-    return (
-        C_slab_finite(nu, l_bo, kmin, kmax)
-        / (2 * np.pi)
-        * Brms ** 2
-        * l_bo
-        / (1 + (k * l_bo) ** 2) ** (nu / 2.0)
-    )
-
 def diff_coeff_slab_QLT(nu: "spectral_index",
         l_slab: "correlation_length",
         B0: "mean_mfield",
@@ -108,9 +69,6 @@ def diff_coeff_slab_QLT(nu: "spectral_index",
             * scipy.special.hyp2f1(2 - nu / 2, -nu / 2, 3 - nu / 2, -ratio ** 2)
         )
     )
-
-def corr_length_slab(nu: "spectral_index", l_slab: "bendover_scale") -> float:
-    return 2 * np.pi * C_slab(nu) * l_slab
 
 def diff_coeff_slab_QLT_approx(nu: "spectral_index",
         l_slab: "correlation_length",

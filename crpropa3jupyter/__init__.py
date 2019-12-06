@@ -13,6 +13,8 @@ import scipy
 import pint
 import csv
 
+from crpropa import *
+
 from .idtools import *
 from .mathtools import *
 from .frequent_cr_equations import *

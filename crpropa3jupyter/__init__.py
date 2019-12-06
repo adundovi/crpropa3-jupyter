@@ -4,9 +4,7 @@ from IPython.display import HTML
 
 import numpy as np
 import mpmath
-import ipyvolume as ipv
 import matplotlib
-import matplotlib.pyplot as plt
 import itertools
 import healpy
 import scipy
@@ -23,7 +21,9 @@ from .simtools import *
 from .turbulence import *
 from .diffusion import *
 
-#matplotlib.use('agg')
+matplotlib.use('agg')
+import matplotlib.pyplot as plt
+
 params = {
         'backend': 'wxAgg',
 #        'lines.markersize' : 2,

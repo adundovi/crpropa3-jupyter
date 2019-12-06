@@ -4,6 +4,8 @@ import numpy as np
 import scipy.special
 from crpropa import ParticleCollector, c_light
 
+from .turbulence import *
+
 def addTwoAccumulators(acs1 : "accumulator", acs2 : "accumulator"):
     """ Combine outputs of two accumulators """
     total = []

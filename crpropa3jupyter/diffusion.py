@@ -2,7 +2,7 @@ import os
 import glob
 import numpy as np
 import scipy.special
-from crpropa import ParticleCollector
+from crpropa import ParticleCollector, c_light
 
 def addTwoAccumulators(acs1 : "accumulator", acs2 : "accumulator"):
     """ Combine outputs of two accumulators """

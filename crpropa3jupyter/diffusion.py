@@ -71,7 +71,7 @@ def C_slab_finite(
 
 def S_slab(Brms, l_bo, k, nu):
     return (
-        C_slab_exact(nu)
+        C_slab(nu)
         / (2 * np.pi)
         * Brms ** 2
         * l_bo
@@ -96,7 +96,7 @@ def diff_coeff_slab_QLT(nu: "spectral_index",
     return (
         c_light
         * l_slab
-        / (8 * np.pi * C_slab_exact(nu))
+        / (8 * np.pi * C_slab(nu))
         * (B0 / Brms) ** 2
         * ratio ** (2 - nu)
         * (
@@ -110,7 +110,7 @@ def diff_coeff_slab_QLT(nu: "spectral_index",
     )
 
 def corr_length_slab(nu: "spectral_index", l_slab: "bendover_scale") -> float:
-    return 2 * np.pi * C_slab_exact(nu) * l_slab
+    return 2 * np.pi * C_slab(nu) * l_slab
 
 def diff_coeff_slab_QLT_approx(nu: "spectral_index",
         l_slab: "correlation_length",
@@ -120,7 +120,7 @@ def diff_coeff_slab_QLT_approx(nu: "spectral_index",
     return (
         c_light
         * l_slab
-        / (8 * np.pi * C_slab_exact(nu))
+        / (8 * np.pi * C_slab(nu))
         * (B0 / Brms) ** 2
         * ratio ** (2 - nu)
         * (1 / (1 - nu / 2) - 1 / (2 - nu / 2))

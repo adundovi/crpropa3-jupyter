@@ -86,3 +86,102 @@ def diff_coeff_slab_QLT_approx(nu: "spectral_index",
         * (1 / (1 - nu / 2) - 1 / (2 - nu / 2))
     )
 
+def diff_coeff_slab_QLT_perp(nu, l_slab, B0, Brms) -> float:
+    return np.pi/2 * c_light * C_slab(nu) * l_slab * (Brms/B0)**2
+
+## SOQLT for slab
+
+def D_mumu_slab_SOQLT(nu: "spectral_index",
+        l_slab: "correlation_length",
+        B0: "mean_mfield",
+        Brms: "rms_mfield",
+        ratio: "R_g/L_c",
+        mu: "pitch_angle") -> float:
+
+    h_spectrum = lambda nu, x: (1 + x ** 2) ** (-1*nu / 2)
+    gamma_sub = lambda ratio, B0, Brms: ratio * (Brms / B0)
+
+    D_mumu_Int = (
+        lambda nu, B0, Brms, ratio, mu, x: x ** (-1)
+        * h_spectrum(nu, x)
+        * (
+            np.exp(-(mu * ratio * x + 1) ** 2 / (gamma_sub(ratio, B0, Brms) * x) ** 2)
+            + np.exp(-(mu * ratio * x - 1) ** 2 / (gamma_sub(ratio, B0, Brms) * x) ** 2)
+        )
+    )
+    return ( np.sqrt(np.pi)
+        * C_slab(nu) / l_slab * c_light
+        * (1 - mu ** 2)
+        * ratio ** (-2)
+        * (Brms / B0)
+        * scipy.integrate.quad(lambda x: D_mumu_Int(nu, B0, Brms, ratio, mu, x), 0, np.inf, limit=100)[0]
+    )
+
+def diff_coeff_slab_SOQLT(nu: "spectral_index",
+        l_slab: "correlation_length",
+        B0: "mean_mfield",
+        Brms: "rms_mfield",
+        ratio: "R_g/L_c") -> float:
+
+    return (c_light ** 2 / 8
+        * scipy.integrate.quad(
+            lambda mu: (1 - mu ** 2) ** 2 / D_mumu_slab_SOQLT(nu, l_slab, B0, Brms, ratio, mu),
+            -1,
+            1,
+        )[0]
+    )
+
+## NLGC for slab/2D
+
+def D_perp_D_par_ratio_slab2D_NLGC(a, nu, B0, dB_slab, dB_2D, l_slab, l_2D, D_parallel):
+
+    lambda_parallel = 3 * D_parallel / c_light
+
+    beta_f = (
+        lambda x, y: scipy.special.gamma(x)
+        * scipy.special.gamma(y)
+        / scipy.special.gamma(x + y)
+    )
+
+    E_integral = (
+        lambda nu, a: 1.0
+        / (2 * a)
+        * beta_f(1.0 / 2, 1.0 / 2 + nu / 2)
+        * scipy.special.hyp2f1(1, 1.0 / 2, nu / 2 + 1, (a - 1.0) / a)
+    )
+
+    D_perp_D_par_ratio = (
+        lambda a, nu, B0, dB_slab, dB_2D, epsilon_slab, epsilon_2D: 2
+        * a ** 2
+        * C_slab(nu)
+        * (
+            (dB_slab / B0) ** 2 * epsilon_slab * E_integral(nu, epsilon_slab)
+            + (dB_2D / B0) ** 2 * epsilon_2D * E_integral(nu, epsilon_2D)
+        )
+    )
+
+    epsilon_2D_f = (
+        lambda l_2D, lambda_parallel, lambda_perp: 3
+        * l_2D ** 2
+        / (lambda_parallel * lambda_perp)
+    )
+    epsilon_slab_f = lambda l_slab, lambda_parallel: epsilon_2D_f(
+        l_slab, lambda_parallel, lambda_parallel
+    )
+
+    ratio = 1
+    new_ratio = 1e99
+    e = 1e-5 # precision
+    while np.fabs(ratio - new_ratio) > e:
+        ratio = new_ratio
+        new_ratio = D_perp_D_par_ratio(
+            a,
+            nu,
+            B0,
+            dB_slab,
+            dB_2D,
+            epsilon_slab_f(l_slab, lambda_parallel),
+            epsilon_2D_f(l_2D, lambda_parallel, ratio * lambda_parallel),
+        )
+
+    return ratio

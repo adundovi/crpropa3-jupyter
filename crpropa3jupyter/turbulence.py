@@ -46,6 +46,11 @@ def S_slab_finite(Brms, l_bo, k, nu, kmin, kmax):
 def corr_length_slab(nu: "spectral_index", l_slab: "bendover_scale") -> float:
     return 2 * np.pi * C_slab(nu) * l_slab
 
+# 2D turbulence:
+
+def corr_length_2D(nu: 'spectral_index', l_2D: 'bendover_scale', L_2D: 'box_size') -> float:
+    return 4*C_slab(nu)*l_2D * (1/nu + np.log(L_2D/l_2D))
+
 # Isotropic turbulence
 
 def corr_length_isotropic_finite(

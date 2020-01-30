@@ -185,3 +185,56 @@ def D_perp_D_par_ratio_slab2D_NLGC(a, nu, B0, dB_slab, dB_2D, l_slab, l_2D, D_pa
         )
 
     return ratio
+
+## NLGC for generalized slab/2D
+
+def D_perp_D_par_ratio_generalized_slab2D_NLGC(
+        a, 
+        q, s, 
+        B0, dB_slab, dB_2D,
+        l_slab, l_2D,
+        D_parallel):
+
+    lambda_parallel = 3 * D_parallel / c_light
+
+    O_integral = (
+        lambda q, s, alpha:
+        (s - 1) / (s + q)
+        * scipy.special.hyp2f1(1.0, (q + 1)/2, (s + q) / 2 + 1, 1.0 - alpha)
+    )
+
+    D_perp_D_par_ratio = (
+        lambda a, q, s, B0, dB_slab, dB_2D, alpha_slab, alpha_2D:
+        a ** 2 / 2.0
+        * (
+            (dB_slab / B0) ** 2 * O_integral(q, s, alpha_slab)
+            + 2*(dB_2D / B0) ** 2 * O_integral(q, s, alpha_2D)
+        )
+    )
+
+    alpha_2D_f = (
+        lambda l_2D, lambda_parallel, lambda_perp:
+        (lambda_parallel * lambda_perp)
+        / (3 * l_2D**2)
+    )
+    alpha_slab_f = lambda l_slab, lambda_parallel: alpha_2D_f(
+        l_slab, lambda_parallel, lambda_parallel
+    )
+
+    ratio = 1
+    new_ratio = 1e99
+    e = 1e-5 # precision
+    while np.fabs(ratio - new_ratio) > e:
+        ratio = new_ratio
+        new_ratio = D_perp_D_par_ratio(
+            a,
+            q,
+            s,
+            B0,
+            dB_slab,
+            dB_2D,
+            alpha_slab_f(l_slab, lambda_parallel),
+            alpha_2D_f(l_2D, lambda_parallel, ratio * lambda_parallel),
+        )
+
+    return ratio

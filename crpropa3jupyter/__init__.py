@@ -24,19 +24,30 @@ from .diffusion import *
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
 
-params = {
-        'backend': 'wxAgg',
-#        'lines.markersize' : 2,
-#        'axes.labelsize': 18,
-#        'font.size': 18,
-#        'font.family': 'sans-serif',
-#        'legend.fontsize': 18,
-#        'xtick.labelsize': 18,
-#        'ytick.labelsize': 18,
-#        'text.usetex': True,
-        'figure.figsize': (10.0, 8.0)
+import numpy as np
+import matplotlib as mpl
+mpl.use('pdf')
+import matplotlib.pyplot as plt
+
+fonts = {
+        # Use LaTeX to write all text
+        "text.usetex": True,
+        "font.family": "serif",
+        # Use 10pt font in plots, to match 10pt font in document
+        "axes.labelsize": 8,
+        "font.size": 8,
+        # Make the legend/label fonts a little smaller
+        "legend.fontsize": 8,
+        "xtick.labelsize": 8,
+        "ytick.labelsize": 8,
 }
-plt.rcParams.update(params)
+
+plt.rcParams.update(fonts)
+
+#params = {
+#        'backend': 'wxAgg',
+#}
+#plt.rcParams.update(params)
 
 cellhidebutton = HTML('''<script>code_show=false; function code_toggle() {
 if (code_show){$('div.input').hide();} else {$('div.input').show();}code_show = !code_show}
@@ -49,6 +60,7 @@ class DefaultDir(object):
     img     = 'img/'
 
 def quickly_save_fig(title):
-    plt.savefig(DefaultDir.img + title+'.png', bbox_inches='tight')
-    plt.savefig(DefaultDir.img + title+'.pdf', bbox_inches='tight')
+    plt.savefig(DefaultDir.img + title+'.png')
+    plt.savefig(DefaultDir.img + title+'.pdf')
+    plt.savefig(DefaultDir.img + title+'.eps')
 

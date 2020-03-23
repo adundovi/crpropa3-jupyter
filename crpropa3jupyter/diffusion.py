@@ -49,6 +49,25 @@ def loadAccumulators(dirname : "path"):
 
     return sorted(accumulators, key=lambda k: k['dist'])
 
+def find_D_by_convergence_in_half(list_of_D):
+    n_half = int(len(list_of_D)/2)
+    
+    if n_half == 1:
+        raise ValueError("Running diffusion coefficient does not converge on in the given range.")
+    
+    first_mean = np.mean(list_of_D[0:n_half])
+    second_mean = np.mean(list_of_D[n_half:])
+    second_std = np.std(list_of_D[n_half:])
+    
+    if second_mean - 2*second_std > first_mean:
+        return find_D_by_convergence_in_half(list_of_D[n_half:])
+    return second_mean, second_std
+
+# Diffusion: general expressions
+
+def meanfreepath_from_D(D, v = c_light):
+    return 3 * D / v
+
 # QLT slab theory
 
 def diff_coeff_slab_QLT(nu: "spectral_index",
@@ -118,16 +137,84 @@ def D_mumu_slab_SOQLT(nu: "spectral_index",
     )
 
 def diff_coeff_slab_SOQLT(nu: "spectral_index",
-        l_slab: "correlation_length",
+        l_slab: "length_slab",
         B0: "mean_mfield",
         Brms: "rms_mfield",
-        ratio: "R_g/L_c") -> float:
+        ratio: "R_g/L_slab") -> float:
 
     return (c_light ** 2 / 8
         * scipy.integrate.quad(
             lambda mu: (1 - mu ** 2) ** 2 / D_mumu_slab_SOQLT(nu, l_slab, B0, Brms, ratio, mu),
             -1,
             1,
+        )[0]
+    )
+
+
+# SECOND METHOD
+# EQ. 6.61 Shalchi - INTEGRAND
+def D_mumu_Int_2(s, B0, dB, ratio, mu, x):
+    # Dmumuint = h_spectrum(s,x)/x*np.exp(-1./(gamma_sub(ratio, B0, dB) *x) ** 2)*np.cosh(2.*mu*ratio/(x*gamma_sub(ratio,B0,dB)**2) )
+    
+    h_spectrum = lambda nu, x: (1 + x ** 2) ** (-1*nu / 2)
+    gamma_sub = lambda ratio, B0, Brms: ratio * (Brms / B0)
+
+    Dmumuint = (
+        h_spectrum(s, x)
+        / x
+        * (
+            np.exp(
+                -1.0 / (gamma_sub(ratio, B0, dB) * x) ** 2
+                - 2.0 * mu * ratio / (x * gamma_sub(ratio, B0, dB) ** 2)
+            )
+            + np.exp(
+                -1.0 / (gamma_sub(ratio, B0, dB) * x) ** 2
+                + 2.0 * mu * ratio / (x * gamma_sub(ratio, B0, dB) ** 2)
+            )
+        )
+    )
+    return Dmumuint
+
+
+# Eq. 6.61 Shalchi
+def D_mumu_SOQLT_2(s, l_slab, B0, dB, ratio, mu, lim1, lim2):
+    muexp = np.exp(-(mu * B0 / dB) ** 2)
+    muint = scipy.integrate.quad(
+        lambda x: D_mumu_Int_2(s, B0, dB, ratio, mu, x), lim1, lim2, limit=100
+    )[0]
+    # print(muexp,muint)
+    return (
+        np.sqrt(np.pi)
+        * C_slab(s)
+        / l_slab
+        * c_light
+        * (1 - mu ** 2)
+        * ratio ** (-2)
+        * (dB / B0)
+        * muexp
+        * muint
+    )
+
+
+def diff_coeff_SOQLT_slab_2(
+    s: "spectral_index",
+    l_slab: "slab_length",
+    B0: "mean_mfield",
+    dB: "rms_mfield",
+    ratio: "R_g/L_c",
+    lim1,
+    lim2,
+):
+    #  print(c_light,s,l_slab,B0,dB,ratio)
+    return (
+        c_light ** 2
+        / 8
+        * scipy.integrate.quad(
+            lambda mu: (1 - mu ** 2) ** 2
+            / D_mumu_SOQLT_2(s, l_slab, B0, dB, ratio, mu, lim1, lim2),
+            -1,
+            1,
+            limit=100,
         )[0]
     )
 

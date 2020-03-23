@@ -4,7 +4,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import itertools
 import healpy
+
 from crpropa import *
+
+default_html_colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
 def container2crmap(output, limit=0):
     

@@ -49,6 +49,38 @@ def loadAccumulators(dirname : "path"):
 
     return sorted(accumulators, key=lambda k: k['dist'])
 
+def calc_diffusion_from_accumulators(accumulators):
+    """ calc correlators D_ij_t
+    returns dict("t" : time, "x": Dxx,"y": Dyy, "z": Dzz) """
+    list_of_t = np.zeros(len(accumulators))
+    list_of_D_xx = np.zeros(len(accumulators))
+    list_of_D_yy = np.zeros(len(accumulators))
+    list_of_D_zz = np.zeros(len(accumulators))
+
+    for i, a in enumerate(accumulators):
+        if len(a["output"]) == 0:
+            continue
+
+        time = a["dist"]/c_light              
+        list_of_deltaDist = [
+            c.source.getPosition() - c.current.getPosition()
+            for c in a["output"]]
+
+        calc_diff = lambda axis, dXs=list_of_deltaDist, t=time:\
+            np.mean(np.array([getattr(dX, axis)**2 for dX in dXs]))/(2*t)    
+                
+        list_of_t[i] = time
+        list_of_D_xx[i] = calc_diff('x')
+        list_of_D_yy[i] = calc_diff('y')
+        list_of_D_zz[i] = calc_diff('z')
+
+    return {
+        "t": list_of_t,
+        "x": list_of_D_xx,
+        "y": list_of_D_yy,
+        "z": list_of_D_zz
+    }
+
 def find_D_by_convergence_in_half(list_of_D):
     n_half = int(len(list_of_D)/2)
     

@@ -13,13 +13,14 @@ import csv
 
 from crpropa import *
 
-from .idtools import *
-from .mathtools import *
-from .frequent_cr_equations import *
-from .plotting import *
-from .simtools import *
-from .turbulence import *
-from .diffusion import *
+import crpropa3jupyter.idtools
+import crpropa3jupyter.mathtools
+import crpropa3jupyter.frequent_cr_equations as common
+import crpropa3jupyter.plotting
+import crpropa3jupyter.simtools
+import crpropa3jupyter.turbulence
+import crpropa3jupyter.diffusion
+import crpropa3jupyter.diffsim
 
 matplotlib.use('agg')
 import matplotlib.pyplot as plt

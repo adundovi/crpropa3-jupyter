@@ -4,7 +4,7 @@ import numpy as np
 import crpropa3jupyter.diffusion as diffusion
 
 kmax_f = lambda N, L_box: np.pi*N/L_box
-grid_limit_f = lambda kmax, L_c: 4/(kmax * L_c)
+grid_limit_f = lambda kmax, L_bo: 5/(kmax * L_bo)
 
 def getInitialDistribution(N: "particle number", E: "energy in J", boxsize: "boxsize in m"):
     """Returns ParticleCollector container with homogeneous
@@ -106,11 +106,8 @@ def converge_run(simconfig):
                 converged[j] = True
         if all(converged):
             break
-            
-    if i == simconfig['maxIter']:
-        convergenceProblem = True
-    else:
-        convergenceProblem = False
+    
+    convergenceProblem = True if i >= simconfig['maxIter'] else False
             
     return {
         'convergenceProblem': convergenceProblem,

@@ -357,3 +357,31 @@ def D_perp_D_par_ratio_generalized_slab2D_NLGC(
         )
 
     return ratio
+
+
+def diff_coeff_Subeid_HE(L_c, r_g):
+    return r_g**2 * c_light / (2 * L_c)
+
+def diff_coeff_Subedi_QLT(s, l_bo, r_g):
+    A_factor = lambda s: (2/3.)**(s/2.) * s*(s+2)/(s+1) * \
+        scipy.special.gamma((s-1)/2.) / (scipy.special.gamma(s/2+2) * scipy.special.gamma((3-s)/2))
+    return c_light * l_bo / 8 * A_factor(s) * (r_g / l_bo)**(2-s)
+
+def diff_coeff_Subedi_NLGC(s, l_bo, r_g):
+    A_factor = lambda s: (2/3.)**(s/2.) * s*(s+2)/(s+1) * \
+        scipy.special.gamma((s-1)/2.) / (scipy.special.gamma((s+4)/2) * scipy.special.gamma((3-s)/2))
+    B_factor = lambda s: 3**2 / 2**10 * 1 / ((s-2)*(s+1)) * \
+        (2**5 * s*(4*s-5) - 221 + 3**(1-s) * (13+8*s) * scipy.special.hyp2f1(-1/2.,(3-s)/2, 1/2., -8))
+    return c_light * l_bo / 8 * A_factor(s) / B_factor(s) * (r_g / l_bo)**(2-s)
+
+def diff_coeff_QLT_generic(s, Bz, Brms, l_bo, l_c, r_g):
+    if Bz == 0:
+        if r_g > l_bo:
+            return diff_coeff_Subeid_HE(l_c, r_g)
+        else:
+            return diff_coeff_Subedi_QLT(s, l_bo, r_g)
+    else:
+        return diff_coeff_slab_QLT(s, l_bo, Bz, Brms, r_g / l_bo)
+
+def k_perp2k_xx_iso(k_perp):
+    return k_perp/3.

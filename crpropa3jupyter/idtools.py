@@ -58,7 +58,10 @@ def readMeta(id, path="") -> dict:
             value = "=".join(pieces[1:]) # just in case if there is an additional "=" in value
 
             if vtype in types.keys():
-                data[key] = types[vtype](value)
+                if vtype == 'bool':
+                    data[key] = True if value.lower() in ("yes", "true", "t", "1") else False
+                else:
+                    data[key] = types[vtype](value)
             else:
                 data[key] = value
 

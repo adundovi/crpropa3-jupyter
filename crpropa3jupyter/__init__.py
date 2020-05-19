@@ -61,7 +61,7 @@ class DefaultDir(object):
     img     = 'img/'
 
 def quickly_save_fig(title):
-    plt.savefig(DefaultDir.img + title+'.png')
+    plt.savefig(DefaultDir.img + title+'.png', dpi=300)
     plt.savefig(DefaultDir.img + title+'.pdf')
     plt.savefig(DefaultDir.img + title+'.eps')
 

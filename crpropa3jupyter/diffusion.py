@@ -358,6 +358,125 @@ def D_perp_D_par_ratio_generalized_slab2D_NLGC(
 
     return ratio
 
+## NLGC for isotropic case
+
+def D_perp_D_par_ratio_isotropic_NLGC(
+        a, s, 
+        B0, dB_iso,
+        l_iso,
+        D_parallel):
+
+    lambda_parallel = 3 * D_parallel / c_light
+
+    D_perp_D_par_ratio = (
+        lambda a, s, B0, dB_iso, R, alpha_parallel, alpha_perp:
+        a ** 2 / 2.0
+        * C_iso(s)
+        * (dB_iso / B0) ** 2
+        * (
+            int_I(s, alpha_parallel*R, alpha_parallel) + 
+            0 #2*R * int_J(s, alpha_parallel*R, alpha_perp)
+        )
+    )
+
+    int_I = (
+        lambda s, A1, A2:
+        scipy.integrate.quad(lambda x_par:
+            scipy.integrate.quad(lambda x_per:
+                x_per * (2*x_par**2 + x_per**2) *
+                (1 + x_par**2 + x_per**2)**(-s/2.-2) /
+                (1 + A1*x_per**2 + A2*x_par**2),
+                0, np.inf)[0],
+                -np.inf, np.inf)[0]
+    )
+    
+    int_J = (
+        lambda s, A1, A2:
+        scipy.integrate.quad(lambda x_par:
+            scipy.integrate.quad(lambda x_per:
+                x_per**3 *
+                (1 + x_par**2 + x_per**2)**(-s/2.-2) /
+                (1 + A1*x_par**2 + A2*x_per**2),
+                0, np.inf)[0],
+                -np.inf, np.inf)[0]
+    )
+       
+    alpha_f = (
+        lambda l_iso, lambda_:
+        (lambda_**2)
+        / (3 * l_iso**2)
+    )
+
+    ratio = 1
+    new_ratio = 1e99
+    e = 1e-2 # precision
+    while np.fabs(ratio - new_ratio)/ratio > e:
+        ratio = new_ratio
+        new_ratio = D_perp_D_par_ratio(
+            a,
+            s,
+            B0,
+            dB_iso,
+            ratio,
+            alpha_f(l_iso, lambda_parallel),
+            alpha_f(l_iso, ratio * lambda_parallel),
+        )
+
+    return ratio
+
+## UNLT for isotropic case
+
+def D_perp_D_par_ratio_isotropic_UNLT(
+        a, s, 
+        B0, dB_iso,
+        l_iso,
+        D_parallel):
+
+    lambda_parallel = 3 * D_parallel / c_light
+
+    D_perp_D_par_ratio = (
+        lambda a, s, B0, dB_iso, R, alpha_parallel:
+        a ** 2 / 2.0
+        * C_iso(s)
+        * (dB_iso / B0) ** 2
+        * (
+            int_I(s, alpha_parallel, R) 
+        )
+    )
+
+    int_I = (
+        lambda s, A1, R:
+        scipy.integrate.quad(lambda x_per:
+            scipy.integrate.quad(lambda x_par:
+                x_per**3 * R * (2*x_par**2 + x_per**2) *
+                (1 + x_par**2 + x_per**2)**(-s/2.-2) /
+                (x_per**2 * R * (1 + 4/3.* A1 * R * x_per**2) + (x_par)**2),
+                -np.inf, np.inf, limit=200)[0],
+                0, np.inf, limit=200)[0]
+    )
+    
+    alpha_f = (
+        lambda l_iso, lambda_:
+        (lambda_**2)
+        / (3 * l_iso**2)
+    )
+
+    ratio = 1
+    new_ratio = 1e20
+    e = 1e-2 # precision
+    while np.fabs(ratio - new_ratio)/ratio > e:
+        ratio = new_ratio
+        new_ratio = D_perp_D_par_ratio(
+            a,
+            s,
+            B0,
+            dB_iso,
+            ratio,
+            alpha_f(l_iso, lambda_parallel)
+        )
+
+    return ratio
+
 
 def diff_coeff_Subeid_HE(L_c, r_g):
     return r_g**2 * c_light / (2 * L_c)

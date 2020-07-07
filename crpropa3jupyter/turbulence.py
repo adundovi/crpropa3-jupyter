@@ -2,6 +2,13 @@ import numpy as np
 import scipy.special
 from crpropa import c_light
 
+def C_general(q: "bendover_index", s: "spectral_index") -> float:
+    return (
+        1.0 / 2.0
+        * scipy.special.gamma((s+q) / 2.0)
+        / (scipy.special.gamma((s-1) / 2.0) * scipy.special.gamma((q+1) / 2.0))
+    )
+
 # Slab turbulence
 
 def C_slab(nu: "spectral_index") -> float:
@@ -52,6 +59,9 @@ def corr_length_2D(nu: 'spectral_index', l_2D: 'bendover_scale', L_2D: 'box_size
     return 4*C_slab(nu)*l_2D * (1/nu + np.log(L_2D/l_2D))
 
 # Isotropic turbulence
+
+def C_iso(s: "spectral_index") -> float:
+    return C_general(4, s)
 
 def corr_length_isotropic_finite(
     n: "spectral index", Lbo: "bendover scale", Lmax: "L max scale", Lmin: "L min scale"
